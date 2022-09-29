@@ -1,7 +1,5 @@
 //Set the function logger to const so we don't accidentally override the logger
-const os = require('os');
+const fs = require('fs');
 
-var totMem = os.totalmem();
-var freeMem = os.freemem();
-console.log(`Total memory: ${totMem}`);
-console.log(`Free memory: ${freeMem}`);
+const files = fs.readdirSync('./');
+console.log(files);
