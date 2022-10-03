@@ -1,3 +1,5 @@
+//If it is a class the first letter should be capitalized
+const Joi = require('joi');
 const express = require('express');
 const app = express();
 
@@ -21,6 +23,20 @@ app.get('/api/courses', (req,res)  => {
 //It then sets the new obj name according to the req.body.name
 //After this it pushes it to the array courses
 app.post('/api/courses', (req,res) => {
+    const schema = Joi.object({
+        name: Joi.string().min(3).required()
+    });
+
+    const result = schema.validate(req.body);
+    console.log(result);
+
+    if(!req.body.name || req.body.name.length < 3){
+        //400 bad request
+        res.status(400).send('Name is required and should beminimum 3 characters');
+        return;
+    } 
+
+
     const course = {
         id: courses.length +1,
         name: req.body.name
