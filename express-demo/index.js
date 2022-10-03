@@ -23,19 +23,11 @@ app.get('/api/courses', (req,res)  => {
 //It then sets the new obj name according to the req.body.name
 //After this it pushes it to the array courses
 app.post('/api/courses', (req,res) => {
-    const schema = Joi.object({
-        name: Joi.string().min(3).required()
-    });
-
-    const result = schema.validate(req.body);
-    console.log(result);
-
-    if(!req.body.name || req.body.name.length < 3){
-        //400 bad request
-        res.status(400).send('Name is required and should beminimum 3 characters');
+    const {error} = validateCourse(req.body); //This is equivalent to getting result.error
+    if(error) {
+        res.status(400).send(error.details[0].message);
         return;
-    } 
-
+    }
 
     const course = {
         id: courses.length +1,
@@ -46,6 +38,34 @@ app.post('/api/courses', (req,res) => {
     courses.push(course);
     res.send(course);
 });
+
+app.put('/api/courses/:id', (req, res) =>{
+    //Check if the course exist
+    //If does not exist return 404
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if(!course) {res.status(404).send('The course does not exist')};
+    
+    //Validate
+    //const result = validateCourse(req.body);
+    const { error } = validateCourse(req.body); //This is equivalent to getting result.error
+    if(error) {
+        res.status(400).send(error.details[0].message);
+        return;
+    }
+    
+    //Update the course and return it
+    course.name = req.body.name;
+    res.send(course);
+
+});
+
+function validateCourse(course) {
+    const schema = Joi.object({
+        name: Joi.string().min(3).required()
+    });
+
+    return schema.validate(course);
+}
 
 app.get('/api/courses/:id', (req,res)=> {
     const course = courses.find(c => c.id === parseInt(req.params.id));
